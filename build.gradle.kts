@@ -1,7 +1,8 @@
 plugins {
-	java
-	id("org.springframework.boot") version "4.0.3"
-	id("io.spring.dependency-management") version "1.1.7"
+    java
+    id("org.springframework.boot") version "4.0.3"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "8.1.0"
 }
 
 group = "com.nickhealthy"
@@ -9,26 +10,76 @@ version = "0.0.1-SNAPSHOT"
 description = "Demo project for Spring Boot"
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-h2console")
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	runtimeOnly("com.h2database:h2")
-	runtimeOnly("org.postgresql:postgresql")
-	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-h2console")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.postgresql:postgresql")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        target("src/**/*.java")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    json {
+        target("src/**/*.json", ".claude/**/*.json")
+        gson()
+            .indentWithSpaces(2)
+            .sortByKeys()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    yaml {
+        target("src/**/*.yaml", "src/**/*.yml")
+        jackson()
+            .yamlFeature("WRITE_DOC_START_MARKER", false)
+            .yamlFeature("MINIMIZE_QUOTES", true)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    format("markdown") {
+        target("*.md", ".claude/**/*.md")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    format("misc") {
+        target("src/**/*.properties", "src/**/*.xml", "src/**/*.sql", "src/**/*.sh")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
