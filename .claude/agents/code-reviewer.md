@@ -31,10 +31,10 @@ When invoked:
 10. Domain structure: Entity, Repository, Service, Exception in `domain/{name}/`
 
 ### General Quality (6 items)
-11. No hardcoded values that should be configurable 
-12. Proper null handling 
-13. Meaningful variable and method names 
-14. No unused imports or dead code 
+11. No hardcoded values that should be configurable
+12. Proper null handling
+13. Meaningful variable and method names
+14. No unused imports or dead code
 15. Security vulnerabilities (SQL injection, XSS, etc.)
 16. Performance concerns
 
