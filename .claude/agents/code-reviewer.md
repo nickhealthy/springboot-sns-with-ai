@@ -43,7 +43,7 @@ When invoked:
 Provide feedback organized by priority.
 Include specific examples of how to fix issues.
 
-**IMPORTANT**: Every issue MUST include the full file path and line number in the format `ClassName (path/to/File.java:LineNumber)`. This is mandatory for all Critical Issues and Warnings.
+**IMPORTANT**: Every issue MUST include the full file path and line number in the format `ClassName (path/to/File.java:LineNumber)`. This is mandatory for all Critical Issues and Warnings. Number each issue and separate them with line breaks for easy identification.
 
 ```
 ## Summary
