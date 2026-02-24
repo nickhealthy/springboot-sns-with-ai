@@ -1,19 +1,15 @@
 package com.nickhealthy.springboot_sns_sample.config.auth;
 
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisIndexedHttpSession;
-import org.springframework.session.security.SpringSessionBackedSessionRegistry;
-import tools.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.Map;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisIndexedHttpSession;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -23,10 +19,15 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final ObjectMapper objectMapper;
+    private final AuthSuccessHandler authSuccessHandler;
+    private final AuthFailureHandler authFailureHandler;
+    private final AuthLogoutSuccessHandler authLogoutSuccessHandler;
+    private final AuthEntryPoint authEntryPoint;
+    private final AuthAccessDeniedHandler authAccessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionRegistry sessionRegistry, AuthSuccessHandler authSuccessHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionRegistry sessionRegistry)
+            throws Exception {
         http
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
@@ -39,12 +40,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginProcessingUrl("/api/v1/login")
                         .successHandler(authSuccessHandler)
-                        .failureHandler((req, res, ex) -> {
-                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            res.setContentType("application/json;charset=UTF-8");
-                            res.getWriter().write(
-                                    objectMapper.writeValueAsString(Map.of("message", "아이디 또는 비밀번호가 올바르지 않습니다.")));
-                        })
+                        .failureHandler(authFailureHandler)
                 )
                 .sessionManagement(session -> session
                         .maximumSessions(2)
@@ -53,12 +49,11 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/logout")
-                        .logoutSuccessHandler((req, res, auth) -> {
-                            res.setStatus(HttpServletResponse.SC_OK);
-                            res.setContentType("application/json;charset=UTF-8");
-                            res.getWriter().write(
-                                    objectMapper.writeValueAsString(Map.of("message", "로그아웃 되었습니다.")));
-                        })
+                        .logoutSuccessHandler(authLogoutSuccessHandler)
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(authAccessDeniedHandler)
                 );
 
         return http.build();

@@ -1,6 +1,7 @@
 package com.nickhealthy.springboot_sns_sample.config.auth;
 
 import com.nickhealthy.springboot_sns_sample.domain.user.UserRepository;
+import com.nickhealthy.springboot_sns_sample.domain.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +20,7 @@ public class AuthUserDetailsService implements UserDetailsService {
                 .map(user -> org.springframework.security.core.userdetails.User.builder()
                         .username(user.getUsername())
                         .password(user.getPassword())
-                        .authorities("ROLE_USER")
+                        .authorities(UserRole.USER.getAuthority())
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
