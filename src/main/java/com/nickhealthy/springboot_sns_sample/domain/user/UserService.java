@@ -33,9 +33,12 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(Long userId) {
+    public void delete(Long userId, String authenticatedUsername) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserException.ErrorCode.USER_NOT_FOUND));
-        user.delete();
+        if (!user.getUsername().equals(authenticatedUsername)) {
+            throw new UserException(UserException.ErrorCode.UNAUTHORIZED_ACTION);
+        }
+        userRepository.delete(user);
     }
 }

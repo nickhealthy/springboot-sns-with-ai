@@ -18,6 +18,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = switch (e.getErrorCode()) {
             case USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
             case DUPLICATE_USERNAME -> HttpStatus.CONFLICT;
+            case UNAUTHORIZED_ACTION -> HttpStatus.FORBIDDEN;
         };
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(e.getErrorCode().name(), e.getMessage(), LocalDateTime.now()));
